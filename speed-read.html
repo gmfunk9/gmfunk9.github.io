@@ -1,79 +1,355 @@
-<!DOCTYPE html>
-<html>
 <head>
-  <title>Speed Reading Plugin</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-    }
 
-    h1 {
-      font-family: Arial, sans-serif;
-      font-size: 24px;
-      font-weight: bold;
-      color: #333;
-      text-align: center;
-      margin: 20px 0;
-    }
-
-    #text {
-      font-family: Arial, sans-serif;
-      font-size: 18px;
-      color: #333;
-      margin: 0 20px;
-    }
-
-    #text::selection {
-      background-color: #333;
-      color: #fff;
-    }
-  </style>
-</head>
-<body>
-  <h1>Speed Reading Plugin</h1>
-
-  <p id="text">
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-  </p>
-
-  <script>
-    //
-    // Define the speed reading plugin
-    function speedReadingPlugin() {
-      // Get the element containing the text to be read
-      var textElement = document.getElementById("text");
-
-      // Get the text content of the element
-      var textContent = textElement.textContent;
-
-      // Split the text into an array of words
-      var words = textContent.split(" ");
-
-      // Set the initial reading speed (in words per minute)
-      var speed = 400;
-
-      // Set the initial index of the current word
-      var wordIndex = 0;
-
-      // Set the interval for updating the displayed text
-      var interval = setInterval(function() {
-        // Check if the end of the text has been reached
-        if (wordIndex >= words.length) {
-          // Clear the interval
-          clearInterval(interval);
-        } else {
-          // Update the displayed text
-          textElement.textContent = words[wordIndex];
-
-          // Increment the index of the current word
-          wordIndex++;
+    <title>Speed Reading Plugin</title>
+    <style>
+        :root {
+            --text-color: #000;
+            --background-color: #fff;
+            --button-color: #777;
+            --highlight-color: #eee;
         }
-      }, 60000 / speed);
-    }
 
-    // Call the speed reading plugin
-    speedReadingPlugin();
-  </script>
+        .dark-mode {
+            --text-color: #fff;
+            --background-color: #000;
+            --button-color: #333;
+            --highlight-color: #777;
+        }
+
+        * {
+            position: relative;
+            border: 0;
+            box-sizing: border-box;
+            transition: color .3s, background-color .6s;
+            margin: 0;
+            padding: 0;
+
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: auto;
+            max-width: 540px;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color);
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        #textarea {
+            padding: 10px;
+            margin: auto;
+            width: 100%;
+            resize: vertical;
+            background-color: var(--highlight-color);
+        }
+
+        #text {
+            font-size: 28px;
+            display: flex;
+            place-content: center;
+            place-items: center;
+            aspect-ratio: 16/9;
+            color: var(--text-color);
+            background-color: var(--highlight-color);
+        }
+
+        .flex {
+            display: flex;
+            gap: 10px;
+        }.flex-row {
+            flex-direction: row;
+        }.flex-col {
+            flex-direction: column;
+            gap: 20px;
+        }.flex-cen {
+            place-content: center;
+            place-items: center;
+        }.flex-bet {
+            place-content: space-between;
+            place-items: center;
+        }
+
+        #copy-button {
+            margin-left: auto;
+        }
+
+        #play-button,
+        #pause-button,
+        #reset-button,
+        #copy-button,
+        #paste-button,
+        #dark-mode-toggle {
+            background-color: var(--button-color);
+            color: var(--text-color);
+        }
+
+        .wordIndex-range-wrap {
+            position: absolute;
+            bottom: 0;;
+            width: 100%;
+            padding: 5px;
+            padding-right:20px;
+        }
+        .fontSize-range-wrap {
+            position: absolute;
+            bottom: 0;right: 0;
+            height: 100%;
+            padding: 5px;
+            padding-bottom:20px;
+        }
+
+        [type="range"] {
+            width: 100%;
+            height: 100%;
+
+        }
+    </style>
+</head>
+
+<body class="flex flex-col dark-mode">
+    <button id="dark-mode-toggle">Dark Mode</button>
+
+    <h1>Speed Reading Plugin</h1>
+
+    <div class="flex flex-col">
+        <p id="text">SpeedRead</p>
+        <div class="flex flex-cen wordIndex-range-wrap">
+            <output>0</output>
+            <input type="range" id="wordIndex-range" min="0" max="10" value="0"
+                oninput="this.previousElementSibling.value = this.value">
+        </div>
+        <div class="flex flex-cen fontSize-range-wrap">
+            <output>20</output>
+            <input type="range" orient="vertical" id="fontSize-range" min="20" max="80" value="30"
+                oninput="this.previousElementSibling.value = this.value">
+        </div>
+    </div>
+
+    <div class="flex flex-bet">
+        <button id="play-button">Play</button>
+        <button id="pause-button">Pause</button>
+        <button id="reset-button">Reset</button>
+        <button id="copy-button">Copy</button>
+        <button id="paste-button">Paste</button>
+
+    </div>
+
+
+    <textarea id="textarea">Once upon a time, in a small village, there lived a big cat. The cat had bright yellow fur, a long tail, and sharp claws. He was a very powerful predator, and he loved to chase mice. Every morning, the cat would wake up early and head out into the fields around the village. He would slink through the grass, looking for any signs of a mouse. When he found one, he would pounce and chase it through the grass. The cat was very proud of his hunting skills and he loved to show off. Whenever he caught a mouse, he would proudly march it back to the village and present it to the villagers. Everyone in the village was amazed at the cat’s hunting ability and they were always grateful for the mice he brought them. One day, the cat was out hunting and he saw something that caught his eye. It was a small, white mouse. The mouse was scurrying around the grass and the cat was determined to catch it. He stalked the mouse, creeping closer and closer. Finally, the cat was close enough to pounce. He leapt forward and grabbed the mouse in his claws. The mouse squeaked in fear and tried to escape, but it was no use. The cat was too strong and too fast. He held the mouse tightly in his claws and carried it back to the village. The villagers were amazed at the cat’s skill and they praised him for his bravery. The cat was very proud of himself and he strutted around the village, showing off his prize. From then on, the cat was known as the best hunter in the village. Whenever he set out to hunt, the villagers knew that he would come back with a mouse. The cat was happy and so were the villagers. It was a perfect partnership. The cat was never happier than when he was out chasing mice. He loved to show off his skills and make the villagers proud. He never tired of hunting, and he was often seen stalking through the fields, always on the lookout for his next victim. The big cat would go on to become one of the most famous hunters in the village. His legacy would live on for generations to come, and his skill at catching mice would ensure that the villagers never went hungry.
+    </textarea>
+
+    <div class="flex  flex-bet">
+        <div class="flex flex-cen">
+            <input type="range" id="wpm-range" min="1" max="2000" value="600"
+                oninput="this.nextElementSibling.value = this.value">
+            <output>600</output>
+        </div>
+
+    </div>
+
+    <script>
+
+
+        class SpeedReader {
+
+            constructor(textareaId, textId, playId, pauseId, resetId, wpmId, wordIndexId,fontSizeId) {
+                this.textareaElement = document.getElementById(textareaId);
+                this.textElement = document.getElementById(textId);
+                this.playButton = document.getElementById(playId);
+                this.pauseButton = document.getElementById(pauseId);
+                this.resetButton = document.getElementById(resetId);
+                this.wpmRange = document.getElementById(wpmId);
+                this.wordIndexRange = document.getElementById(wordIndexId);
+                this.fontSizeRange = document.getElementById(fontSizeId);
+
+                this.copyButton = document.getElementById("copy-button");
+                this.pasteButton = document.getElementById("paste-button");
+
+
+
+
+
+
+            }
+
+            init() {
+                this.wordIndex = 0;
+
+                this.playButton.addEventListener("click", () => this.start());
+                this.pauseButton.addEventListener("click", () => this.stop());
+                this.resetButton.addEventListener("click", () => this.reset());
+                this.wpmRange.addEventListener("input", () => this.setWpm(this.wpmRange.value));
+
+
+                this.copyButton.addEventListener("click", () => {
+                    navigator.clipboard.writeText(this.textareaElement.value);
+                });
+
+                this.pasteButton.addEventListener("click", function () {
+                    var pasteText = prompt("Paste your text here:");
+                    document.getElementById("textarea").value = pasteText;
+                });
+
+
+                this.textElement.addEventListener("click", () => {
+                    if (this.interval) {
+                        this.stop();
+                    } else {
+                        this.start();
+                    }
+                });
+
+
+
+
+                this.wordIndexRange.addEventListener("input", (event) => {
+                    this.wordIndex = event.target.value;
+                    document.querySelector("#text").innerHTML = this.textContent.split(" ")[this.wordIndex];
+                });
+
+
+                this.wordIndexRange.addEventListener("mouseup", (event) => {
+                    this.highlightWord(this.wordIndex);
+
+                });
+
+
+                this.fontSizeRange.addEventListener("input", (event) => {                  
+                    var size = this.fontSizeRange.value;
+                    this.textElement.style.fontSize = size + "px";
+                });
+
+
+            }
+
+            start() {
+                if (this.interval) {
+                    return;
+                }
+                this.textContent = this.textareaElement.value;
+                this.words = this.textContent.split(" ");
+                this.speed = this.wpmRange.value;
+
+
+                // this.wordIndex = 0;
+                this.interval = null;
+                this.wordIndexRange.max = this.words.length;
+
+                this.speedReadingPlugin();
+                this.textElement.textContent = this.words[this.wordIndex];
+
+
+
+            }
+
+            stop() {
+                clearInterval(this.interval);
+                this.interval = null;
+            }
+
+            reset() {
+                this.stop();
+                this.wordIndex = 0;
+                this.textContent = this.textareaElement.value;
+                this.words = this.textContent.split(" ");
+                this.textElement.textContent = this.words[this.wordIndex];
+
+                this.range.min = 0;
+                this.range.max = this.words.length;
+                this.range.value = 0;
+            }
+
+            speedReadingPlugin() {
+                this.interval = setInterval(() => {
+                    if (this.wordIndex >= this.words.length) {
+                        this.stop();
+                    } else {
+                        let word = this.words[this.wordIndex];
+                        let letters = word.split("");
+                        let newWord = "";
+                        for (let i = 0; i < letters.length - 1; i++) {
+                            let letter = letters[i];
+                            let nextLetter = letters[i + 1];
+                            newWord += letter;
+                        }
+                        newWord += letters[letters.length - 1];
+                        this.textElement.innerHTML = newWord;
+                        this.highlightWord(this.wordIndex);
+                        this.wordIndex++;
+                        this.setWordIndex();
+                    }
+                }, 60000 / this.speed);
+            }
+            highlightWord(index) {
+                let textareaWords = this.textContent.split(" ");
+                let currentWord = textareaWords[index];
+                let currentWordStart = 0;
+                for (let i = 0; i < index; i++) {
+                    currentWordStart += textareaWords[i].length + 1;
+                }
+                let currentWordEnd = currentWordStart + currentWord.length;
+
+                this.textareaElement.setSelectionRange(currentWordStart, currentWordEnd);
+                this.textareaElement.focus();
+            }
+
+
+
+
+
+
+
+
+            setWpm(wpm) {
+                this.speed = wpm;
+                if (this.interval) {
+                    this.stop();
+                    this.speedReadingPlugin();
+                }
+            }
+
+            setWordIndex() {
+                this.wordIndexRange.value = this.wordIndex;
+                this.wordIndexRange.previousElementSibling.value = this.wordIndex;
+            }
+
+
+
+
+
+
+        }
+
+        const reader = new SpeedReader("textarea", "text", "play-button", "pause-button", "reset-button", "wpm-range", "wordIndex-range", "fontSize-range");
+        reader.init();
+
+
+
+
+    </script>
+
+
+    <script>
+
+        const dark_mode_toggle = document.getElementById("dark-mode-toggle");
+        dark_mode_toggle.addEventListener("click", function () {
+            document.body.classList.toggle("dark-mode");
+            dark_mode_toggle.innerHTML = dark_mode_toggle.innerHTML === 'Dark Mode' ? 'Light Mode' : 'Dark Mode';
+        });
+
+    </script>
+
+
 </body>
-</html>
