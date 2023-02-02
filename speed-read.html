@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Maximize Your Reading Efficiency with SpeedRead</title>
     <link rel="shortcut icon" href="/srfavicon.svg" type="image/x-icon">
-    <meta name="description"
-        content="Speed up your reading with our powerful Speed Reading App. Perfect for busy students, professionals, and avid readers. Increase your productivity and save time by reading at lightning speeds. Try it today!">
+    <meta name="description"  content="Speed up your reading with our powerful Speed Reading App. Perfect for busy students, professionals, and avid readers. Increase your productivity and save time by reading at lightning speeds. Try it today!">
     <meta name="author" content="FunkPd">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <style> :root{--text-color:#000;--background-color:#fff;--button-color:#777;--highlight-color:#e5e5e5}.dark-mode{--text-color:#fff;--background-color:#000;--button-color:#333;--highlight-color:#e5e5e5}*{position:relative;border:0;box-sizing:border-box;transition:color .3s,background-color .6s;margin:0;padding:0}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif;margin:auto;max-width:540px;color:var(--text-color);background-color:var(--background-color)}h1{font-size:24px;font-weight:700;color:var(--text-color);text-align:center;margin:20px 0}button{cursor:pointer;padding:10px}output{min-width:25px}#textarea{padding:10px;margin:auto;width:100%;resize:vertical;background-color:var(--highlight-color)}#text{font-size:28px;display:flex;place-content:center;place-items:center;aspect-ratio:16/9;color:var(--text-color);background-color:var(--highlight-color)}.flex{display:flex;gap:10px}.flex-row{flex-direction:column}@media (min-width:768px){.flex-row{flex-direction:row}}.flex-row>*{width:100%}.flex-col{flex-direction:column;gap:20px}.flex-cen{place-content:center;place-items:center}.flex-bet{place-content:space-between;place-items:center}#copy-button{margin-left:auto}#copy-button,#dark-mode-toggle,#paste-button,#pause-button,#play-button,#reset-button{background-color:var(--button-color);color:var(--text-color)}[type=range]{width:100%;height:100%;margin:0}#wpm-range{width:80%}input[type=range]{-webkit-appearance:none;background:0 0}input[type=range]::-webkit-slider-runnable-track{background:#fff;border-radius:50px;height:initial}input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:48px;width:48px;border-radius:50%;background:#000}input[type=range].vertical{width:100%;width:40vw;max-width:250px}input#wpm-range{min-width:180px}.wordIndex-range-wrap{position:absolute;bottom:0;width:100%;padding:5px;padding-right:64px}.fontSize-range-wrap{position:absolute;right:5px;width:min-content;height:48px;transform:rotate(270deg);transform-origin:bottom right}.fontSize-range-wrap output{position:absolute;right:-30px}</style>
+
 </head>
+
 <body class="flex flex-col dark-mode">
     <button id="dark-mode-toggle">Dark Mode</button>
     <h1>SpeedRead</h1>
@@ -98,39 +99,19 @@
                 this.pauseButton.addEventListener("click", () => this.stop());
                 this.resetButton.addEventListener("click", () => this.reset());
                 this.wpmRange.addEventListener("input", () => this.setWpm(this.wpmRange.value));
-                this.copyButton.addEventListener("click", () => {
-                    navigator.clipboard.writeText(this.textareaElement.value);
-                });
-                this.pasteButton.addEventListener("click", function () {
-                    var pasteText = prompt("Paste your text here:");
-                    document.getElementById("textarea").value = pasteText;
-                });
-                this.textElement.addEventListener("click", () => {
-                    if (this.interval) {
-                        this.stop();
-                    } else {
-                        this.start();
-                    }
-                });
-                this.wordIndexRange.addEventListener("input", (event) => {
-                    this.wordIndex = event.target.value;
-                    document.querySelector("#text").innerHTML = this.textContent.split(" ")[this.wordIndex];
-                });
-                this.wordIndexRange.addEventListener("mouseup", (event) => {
-                    this.highlightWord(this.wordIndex);
-                });
-                this.fontSizeRange.addEventListener("input", (event) => {
-                    var size = this.fontSizeRange.value;
-                    this.textElement.style.fontSize = size + "px";
-                });
+                this.copyButton.addEventListener("click", () => { navigator.clipboard.writeText(this.textareaElement.value); });
+                this.pasteButton.addEventListener("click", function () { var pasteText = prompt("Paste your text here:"); document.getElementById("textarea").value = pasteText; });
+                this.textElement.addEventListener("click", () => { if (this.interval) { this.stop(); } else { this.start(); } });
+                this.wordIndexRange.addEventListener("input", (event) => { this.wordIndex = event.target.value; document.querySelector("#text").innerHTML = this.splitText(this.textContent)[this.wordIndex]; });
+                this.wordIndexRange.addEventListener("mouseup", (event) => { this.highlightWord(this.wordIndex); });
+                this.fontSizeRange.addEventListener("input", (event) => { var size = this.fontSizeRange.value; this.textElement.style.fontSize = size + "px"; });
             }
             start() {
-                if (this.interval) {
-                    return;
-                }
+                if (this.interval) { return; }
                 this.textContent = this.textareaElement.value;
-                this.words = this.textContent.split(" ");
+                this.words = this.splitText(this.textContent);
                 this.speed = this.wpmRange.value;
+                // this.wordIndex=0; 
                 this.interval = null;
                 this.wordIndexRange.max = this.words.length;
                 this.speedReadingPlugin();
@@ -144,7 +125,7 @@
                 this.stop();
                 this.wordIndex = 0;
                 this.textContent = this.textareaElement.value;
-                this.words = this.textContent.split(" ");
+                this.words = this.splitText(this.textContent);
                 this.textElement.textContent = this.words[this.wordIndex];
                 this.range.min = 0;
                 this.range.max = this.words.length;
@@ -175,7 +156,7 @@
                 }, 60000 / this.speed);
             }
             highlightWord(index) {
-                let textareaWords = this.textContent.split(" ");
+                let textareaWords = this.splitText(this.textContent);
                 let currentWord = textareaWords[index];
                 let currentWordStart = 0;
                 for (let i = 0; i < index; i++) {
@@ -198,16 +179,13 @@
                 this.wordIndexRange.value = this.wordIndex;
                 this.wordIndexRange.previousElementSibling.value = this.wordIndex;
             }
+            splitText(text) {
+                return text.split(/[\s\n]+/);
+            }
         }
         const reader = new SpeedReader("textarea", "text", "play-button", "pause-button", "reset-button", "wpm-range", "wordIndex-range", "fontSize-range");
         reader.init();
     </script>
-    <script>
-        const dark_mode_toggle = document.getElementById("dark-mode-toggle");
-        dark_mode_toggle.addEventListener("click", function () {
-            document.body.classList.toggle("dark-mode");
-            dark_mode_toggle.innerHTML = dark_mode_toggle.innerHTML === 'Dark Mode' ? 'Light Mode' : 'Dark Mode';
-        });
-    </script>
 </body>
+
 </html>
